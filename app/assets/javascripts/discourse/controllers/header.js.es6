@@ -3,10 +3,6 @@ import DiscourseURL from 'discourse/lib/url';
 const HeaderController = Ember.Controller.extend({
   topic: null,
   showExtraInfo: null,
-  hamburgerVisible: false,
-  searchVisible: false,
-  userMenuVisible: false,
-  needs: ['application'],
 
   canSignUp: Em.computed.alias('controllers.application.canSignUp'),
 
@@ -20,16 +16,6 @@ const HeaderController = Ember.Controller.extend({
 
 
   actions: {
-    toggleSearch() {
-      this.toggleProperty('searchVisible');
-    },
-    showUserMenu() {
-      if (!this.get('userMenuVisible')) {
-        this.appEvents.trigger('dropdowns:closeAll');
-        this.set('userMenuVisible', true);
-      }
-    },
-
     fullPageSearch() {
       const searchService = this.container.lookup('search-service:main');
       const context = searchService.get('searchContext');
@@ -40,10 +26,6 @@ const HeaderController = Ember.Controller.extend({
       }
 
       DiscourseURL.routeTo('/search' + params);
-    },
-    toggleMenuPanel(visibleProp) {
-      this.toggleProperty(visibleProp);
-      this.appEvents.trigger('dropdowns:closeAll');
     },
 
     toggleStar() {

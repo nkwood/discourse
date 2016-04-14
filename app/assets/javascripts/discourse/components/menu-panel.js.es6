@@ -1,90 +1,10 @@
 import { default as computed, on, observes } from 'ember-addons/ember-computed-decorators';
-import { headerHeight } from 'discourse/views/header';
 
-const PANEL_BODY_MARGIN = 30;
 const mutationSupport = !Ember.testing && !!window['MutationObserver'];
 
 export default Ember.Component.extend({
-  classNameBindings: [':menu-panel', 'visible::hidden', 'viewMode'],
   _lastVisible: false,
-
   showClose: Ember.computed.equal('viewMode', 'slide-in'),
-
-  _layoutComponent() {
-    if (!this.get('visible')) { return; }
-
-    const $window = $(window);
-    let width = this.get('maxWidth') || 300;
-    const windowWidth = parseInt($window.width());
-
-    if ((windowWidth - width) < 50) {
-      width = windowWidth - 50;
-    }
-
-    const viewMode = this.get('viewMode');
-    const $panelBody = this.$('.panel-body');
-    let contentHeight = parseInt(this.$('.panel-body-contents').height());
-
-    // We use a mutationObserver to check for style changes, so it's important
-    // we don't set it if it doesn't change. Same goes for the $panelBody!
-    const style = this.$().prop('style');
-
-    if (viewMode === 'drop-down') {
-      const $buttonPanel = $('header ul.icons');
-      if ($buttonPanel.length === 0) { return; }
-
-      // These values need to be set here, not in the css file - this is to deal with the
-      // possibility of the window being resized and the menu changing from .slide-in to .drop-down.
-      if (style.top !== '100%' || style.height !== 'auto') {
-        this.$().css({ top: '100%', height: 'auto' });
-      }
-
-      // adjust panel height
-      const fullHeight = parseInt($window.height());
-      const offsetTop = this.$().offset().top;
-      const scrollTop = $window.scrollTop();
-
-      if (contentHeight + (offsetTop - scrollTop) + PANEL_BODY_MARGIN > fullHeight) {
-        contentHeight = fullHeight - (offsetTop - scrollTop) - PANEL_BODY_MARGIN;
-      }
-      if ($panelBody.height() !== contentHeight) {
-        $panelBody.height(contentHeight);
-      }
-      $('body').addClass('drop-down-visible');
-    } else {
-      const menuTop = headerHeight();
-
-      let height;
-      const winHeight = $(window).height() - 16;
-      if ((menuTop + contentHeight) < winHeight) {
-        height = contentHeight + "px";
-      } else {
-        height = winHeight - menuTop;
-      }
-
-      if ($panelBody.prop('style').height !== '100%') {
-        $panelBody.height('100%');
-      }
-      if (style.top !== menuTop + "px" || style.height !== height) {
-        this.$().css({ top: menuTop + "px", height });
-      }
-      $('body').removeClass('drop-down-visible');
-    }
-
-    this.$().width(width);
-  },
-
-  @computed('force')
-  viewMode() {
-    const force = this.get('force');
-    if (force) { return force; }
-
-    const headerWidth = $('#main-outlet .container').width() || 1100;
-    const screenWidth = $(window).width();
-    const remaining = parseInt((screenWidth - headerWidth) / 2);
-
-    return (remaining < 50) ? 'slide-in' : 'drop-down';
-  },
 
   @observes('viewMode', 'visible')
   _visibleChanged() {

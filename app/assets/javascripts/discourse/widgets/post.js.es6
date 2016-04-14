@@ -60,7 +60,7 @@ createWidget('reply-to-tab', {
 
     return [iconNode('mail-forward'),
             ' ',
-            avatarImg.call(this,'small',{
+            avatarImg('small', {
               template: attrs.replyToAvatarTemplate,
               username: attrs.replyToUsername
             }),
